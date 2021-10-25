@@ -1,0 +1,54 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           curl
+version:        0.1.0.0
+homepage:       https://github.com/githubuser/curl#readme
+bug-reports:    https://github.com/githubuser/curl/issues
+author:         mlrv
+maintainer:     mlrv
+license:        BSD3
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/curl
+
+library
+  other-modules:
+      Paths_curl
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+  default-language: Haskell2010
+
+executable curl-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_curl
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , curl
+  default-language: Haskell2010
+
+test-suite curl-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_curl
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , curl
+  default-language: Haskell2010
