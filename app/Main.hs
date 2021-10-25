@@ -1,10 +1,12 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Main where
 
 import Control.Applicative (Alternative, empty, (<|>))
 import Control.Arrow (first)
 
 main :: IO ()
-main = undefined 
+main = undefined
 
 -------
 -- Model
@@ -35,10 +37,12 @@ newtype Parser a
 -- String: remaining string left to parse
 data ParseString
   = ParseString Name (Int, Int) String
+  deriving (Eq, Read, Show)
 
 -- contains current state of parser and error msg
 data ParseError
   = ParseError ParseString Error
+  deriving (Eq, Read, Show)
 
 type Error = String
 
@@ -82,3 +86,21 @@ throwErr ps@(ParseString name (row, col) _) msg =
         [ "*** " ++ name ++ ": " ++ msg,
           "* On row " ++ show row ++ ", column " ++ show col ++ "."
         ]
+
+------
+-- combinators
+------
+
+oneOf :: [Char] -> Parser Char
+oneOf chars =
+  Parser $ \case
+    ps@(ParseString name (row, col) str) -> case str of
+      [] -> throwErr ps "Can't read character of empty string"
+      c : cs ->
+        if c `elem` chars
+          then
+            let (row', col')
+                  | c == '\n' = (row + 1, 0)
+                  | otherwise = (row, col + 1)
+             in Right (c, ParseString name (row', col') cs)
+          else throwErr ps $ unlines ["Unexpected character " ++ [c], "Expecting one of: " ++ show chars]
