@@ -104,3 +104,10 @@ oneOf chars =
                   | otherwise = (row, col + 1)
              in Right (c, ParseString name (row', col') cs)
           else throwErr ps $ unlines ["Unexpected character " ++ [c], "Expecting one of: " ++ show chars]
+
+optional :: Parser a -> Parser (Maybe a)
+optional (Parser parser) =
+  Parser $
+    \str -> case parser str of
+      Left _ -> Right (Nothing, str)
+      Right (x, rest) -> Right (Just x, rest)
