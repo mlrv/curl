@@ -186,10 +186,10 @@ parseInt = do
 -- lowercase letters, digits, and underscores
 -- the first char must be a letter
 parseName :: Parser Name
-parseName = do
-  c <- oneOf ['a' .. 'z']
-  cs <- many $ oneOf $ ['a' .. 'z'] ++ "0123456789" ++ "_"
-  pure (c : cs)
+parseName = (:) <$> init <*> rest
+  where
+    init = oneOf ['a' .. 'z']
+    rest = many $ oneOf $ ['a' .. 'z'] ++ "0123456789" ++ "_"
 
 -------
 -- Run Expr Parser
