@@ -111,3 +111,13 @@ optional (Parser parser) =
     \str -> case parser str of
       Left _ -> Right (Nothing, str)
       Right (x, rest) -> Right (Just x, rest)
+
+many :: Parser a -> Parser [a]
+many parser = go []
+  where
+    go cs = parser >>= \c -> go (c : cs) <|> pure (reverse cs)
+
+many1 :: Parser a -> Parser [a]
+many1 parser = concat <*> many parser
+  where
+    concat = (:) <$> parser
