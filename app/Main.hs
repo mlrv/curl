@@ -156,3 +156,35 @@ sepBy sep parser = do
   first <- optional parser
   rest <- many (sep *> parser)
   pure $ maybe rest (: rest) first
+
+-------
+-- Actual Parser
+-------
+
+parseExpr :: Parser Expr
+parseExpr = (ATOM <$> parseAtom) <|> (LIST <$> parseList)
+
+parseList :: Parser [Expr]
+parseList = parens $ sepBy spaces1 parseExpr
+
+parseAtom :: Parser Atom
+parseAtom = parseInt <|> parseSymbol
+
+parseSymbol :: Parser Atom
+parseSymbol = Symbol <$> parseName
+
+-- sequence of digits, optionally prefixed by '-'
+parseInt :: Parser Atom
+parseInt = do
+  s <- optional $ char '-'
+  num <- many1 $ oneOf "0123456789"
+  let res = read $ maybe num (: num) s
+  pure $ Int res
+
+-- lowercase letters, digits, and underscores
+-- the first char must be a letter
+parseName :: Parser Name
+parseName = do
+  c <- oneOf ['a' .. 'z']
+  cs <- many $ oneOf $ ['a' .. 'z'] ++ "0123456789" ++ "_"
+  pure (c : cs)
