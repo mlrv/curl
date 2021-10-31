@@ -121,3 +121,38 @@ many1 :: Parser a -> Parser [a]
 many1 parser = concat <*> many parser
   where
     concat = (:) <$> parser
+
+------
+-- specialised
+------
+
+char :: Char -> Parser Char
+char c = oneOf [c]
+
+string :: String -> Parser String
+string = traverse char
+
+space :: Parser Char
+space = oneOf [' ', '\n']
+
+spaces :: Parser String
+spaces = many space
+
+spaces1 :: Parser String
+spaces1 = many1 space
+
+withSpaces :: Parser a -> Parser a
+withSpaces parser =
+  spaces *> parser <* spaces
+
+parens :: Parser a -> Parser a
+parens parser =
+  (withSpaces $ char '(')
+    *> withSpaces parser
+      <* (spaces *> char ')')
+
+sepBy :: Parser a -> Parser b -> Parser [b]
+sepBy sep parser = do
+  first <- optional parser
+  rest <- many (sep *> parser)
+  pure $ maybe rest (: rest) first
