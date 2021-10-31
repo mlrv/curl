@@ -4,6 +4,8 @@ module Main where
 
 import Control.Applicative (Alternative, empty, (<|>))
 import Control.Arrow (first)
+import Data.Bool (bool)
+import GHC.OldList (intercalate)
 
 main :: IO ()
 main = undefined
@@ -188,3 +190,42 @@ parseName = do
   c <- oneOf ['a' .. 'z']
   cs <- many $ oneOf $ ['a' .. 'z'] ++ "0123456789" ++ "_"
   pure (c : cs)
+
+-------
+-- Run Expr Parser
+-------
+
+runExprParser :: Name -> String -> Either String Expr
+runExprParser name str =
+  case runParser name str (withSpaces parseExpr) of
+    Left (ParseError _ errMsg) -> Left errMsg
+    Right (res, _) -> Right res
+
+-------
+-- Pretty print
+-------
+
+printExpr :: Expr -> String
+printExpr = printExpr' False 0
+
+-- TODO incorrect function call?
+printExpr' :: Bool -> Int -> Expr -> String
+printExpr' doIndent level = \case
+  ATOM a -> indent (bool 0 level doIndent) (printAtom a)
+  LIST (e : es) ->
+    indent (bool 0 level doIndent) $
+      concat
+        [ "(",
+          printExpr' False (level + 1) e,
+          bool "\n" "" (null es),
+          intercalate "\n" $ map (printExpr' True (level + 1)) es,
+          ")"
+        ]
+
+printAtom :: Atom -> String
+printAtom = \case
+  Symbol s -> s
+  Int i -> show i
+
+indent :: Int -> String -> String
+indent tabs s = concat (replicate tabs "  ") ++ s
