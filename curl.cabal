@@ -20,6 +20,8 @@ source-repository head
   location: https://github.com/githubuser/curl
 
 library
+  exposed-modules:
+      JavaScript
   other-modules:
       Paths_curl
   hs-source-dirs:
